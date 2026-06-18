@@ -7,6 +7,7 @@ const alertRoutes = require('./alert.routes');
 const userRoutes = require('./user.routes');
 const scraperRoutes = require('../scraper/scraper.routes');
 const integrationRoutes = require('../integrations/integration.routes');
+const adminRoutes = require('./admin.routes');
 
 const router = Router();
 
@@ -18,5 +19,6 @@ router.use('/alerts', alertRoutes);
 router.use('/users', userRoutes);
 router.use('/scraper', scraperRoutes);
 router.use('/integrations', integrationRoutes);
+router.use('/admin', adminRoutes);
 
 module.exports = router;
