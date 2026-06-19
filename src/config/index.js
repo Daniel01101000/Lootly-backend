@@ -17,6 +17,7 @@ const config = {
     database: process.env.DB_NAME || 'lootly',
     user: process.env.DB_USER || 'postgres',
     password: process.env.DB_PASSWORD || '',
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
   },
 };
 

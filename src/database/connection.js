@@ -24,7 +24,8 @@ async function initialize() {
         database: config.db.database,
         user: config.db.user,
         password: config.db.password,
-        connectionTimeoutMillis: 3000,
+        ssl: config.db.ssl,
+        connectionTimeoutMillis: 10000,
         idleTimeoutMillis: 30000,
       });
 
