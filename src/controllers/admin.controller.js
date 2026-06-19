@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { v4: uuidv4 } = require('uuid');
 const { scrapeAllDeals } = require('../scrapers/mercadolibre.scraper');
 const { query } = require('../database/connection');
 const { seed } = require('../database/seed');
@@ -19,15 +20,15 @@ const triggerMLScrape = async (req, res) => {
     for (const deal of deals) {
       try {
         const result = await query(
-          `INSERT INTO products (name, image_url, current_price, original_price, store, category, url, created_at, updated_at)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())
+          `INSERT INTO products (id, name, image_url, current_price, original_price, store, category, url, created_at, updated_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
            ON CONFLICT (url) DO UPDATE SET
              current_price = EXCLUDED.current_price,
              original_price = EXCLUDED.original_price,
              image_url = EXCLUDED.image_url,
              updated_at = NOW()
            RETURNING id`,
-          [deal.name, deal.image_url, deal.current_price, deal.original_price, deal.store, deal.category, deal.url]
+          [uuidv4(), deal.name, deal.image_url, deal.current_price, deal.original_price, deal.store, deal.category, deal.url]
         );
         if (result.rows.length > 0) inserted++;
       } catch (err) {
