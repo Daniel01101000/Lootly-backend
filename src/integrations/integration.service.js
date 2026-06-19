@@ -1,7 +1,6 @@
 const productService = require('../services/product.service');
 const cheapshark = require('./cheapshark');
 const rawg = require('./rawg');
-const mercadolibre = require('./mercadolibre');
 const config = require('../config');
 
 const SEEN_URLS = new Set();
@@ -45,17 +44,26 @@ class IntegrationService {
 
     if (config.integrations?.mercadolibreEnabled === true) {
       try {
-        console.log('[MERCADOLIBRE] API integration active. Searching hardware components...');
-        const rawML = await mercadolibre.searchAll();
-        const mlProducts = mercadolibre.mapProducts(rawML);
-        console.log(`[MERCADOLIBRE] Valid products after mapping: ${mlProducts.length}`);
-        allProducts = allProducts.concat(mlProducts);
+        console.log('[MERCADOLIBRE] Running Puppeteer scraper for gaming deals...');
+        const { scrapeAllDeals } = require('../scrapers/mercadolibre.scraper');
+        const scrapedDeals = await scrapeAllDeals();
+        console.log(`[MERCADOLIBRE] Scraper found ${scrapedDeals.length} valid deals`);
+        const mappedDeals = scrapedDeals.map(d => ({
+          name: d.name,
+          imageUrl: d.image_url,
+          currentPrice: d.current_price,
+          originalPrice: d.original_price,
+          store: d.store,
+          category: d.category,
+          url: d.url,
+        }));
+        allProducts = allProducts.concat(mappedDeals);
       } catch (err) {
         errors++;
-        console.error(`[IntegrationService] MercadoLibre error: ${err.message}`);
+        console.error(`[IntegrationService] MercadoLibre scraper error: ${err.message}`);
       }
     } else {
-      console.log('[MERCADOLIBRE] API integration disabled (requires Mercado Libre app credentials). Using existing scraper instead.');
+      console.log('[MERCADOLIBRE] Scraper disabled via config.');
     }
 
     console.log(`[IntegrationService] Total products to save: ${allProducts.length}`);
