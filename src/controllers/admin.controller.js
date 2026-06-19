@@ -1,5 +1,8 @@
+const fs = require('fs');
+const path = require('path');
 const { scrapeAllDeals } = require('../scrapers/mercadolibre.scraper');
 const { query } = require('../database/connection');
+const { seed } = require('../database/seed');
 
 const triggerMLScrape = async (req, res) => {
   const secret = req.headers['x-admin-secret'];
@@ -38,4 +41,53 @@ const triggerMLScrape = async (req, res) => {
   }
 };
 
-module.exports = { triggerMLScrape };
+module.exports = { triggerMLScrape, triggerMigrations, triggerSeed };
+
+async function triggerMigrations(req, res) {
+  const secret = req.headers['x-admin-secret'];
+  if (secret !== process.env.ADMIN_SCRAPE_SECRET) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  try {
+    const migrationsDir = path.join(__dirname, '../database/migrations');
+    const files = fs.readdirSync(migrationsDir).filter(f => f.endsWith('.sql')).sort();
+
+    const results = [];
+    for (const file of files) {
+      const sql = fs.readFileSync(path.join(migrationsDir, file), 'utf8');
+      const statements = sql.split(';').map(s => s.trim()).filter(s => s.length > 0 && !s.startsWith('--'));
+
+      for (const stmt of statements) {
+        try {
+          await query(stmt);
+        } catch (err) {
+          console.warn(`[Migrate] Skipped statement in ${file}: ${err.message}`);
+        }
+      }
+      results.push(file);
+      console.log(`[Migrate] Done: ${file}`);
+    }
+
+    res.json({ success: true, message: 'Migraciones completadas', files: results });
+  } catch (err) {
+    console.error('[Migrate] Error:', err.message);
+    res.status(500).json({ success: false, message: err.message });
+  }
+}
+
+async function triggerSeed(req, res) {
+  const secret = req.headers['x-admin-secret'];
+  if (secret !== process.env.ADMIN_SCRAPE_SECRET) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  try {
+    await seed();
+    const { rows } = await query('SELECT COUNT(*)::int as cnt FROM products');
+    res.json({ success: true, message: 'Seed completado', totalProducts: rows[0].cnt });
+  } catch (err) {
+    console.error('[Seed] Error:', err.message);
+    res.status(500).json({ success: false, message: err.message });
+  }
+}
