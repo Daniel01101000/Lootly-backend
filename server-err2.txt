@@ -1,0 +1,769 @@
+[DB] PostgreSQL unavailable (). Falling back to pg-mem (in-memory).
+[DB] Data will NOT persist between restarts. Use PostgreSQL for production.
+[DB] Migration 001_create_users.sql statement skipped: Extension does not exist: uuid-ossp
+
+💥 This is a nasty error, which was unexpected by pg-mem. Also known "a bug" 😁 Please file an issue !
+
+*️⃣ Failed SQL statement: CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[DB] Migration 001_create_users.sql statement skipped: 🔨 Not supported 🔨 : The query you ran generated an AST which parts have not been read by the query planner. This means that those parts could be ignored:
+
+    ⇨ .columns[3].dataType.config ([10,2])
+    ⇨ .columns[4].dataType.config ([10,2])
+
+👉 pg-mem is work-in-progress, and it would seem that you've hit one of its limits.
+
+*️⃣ Failed SQL statement: CREATE TABLE IF NOT EXISTS products (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name VARCHAR(255) NOT NULL,
+  image_url VARCHAR(500),
+  current_price DECIMAL(10, 2) NOT NULL,
+  original_price DECIMAL(10, 2),
+  currency VARCHAR(10) DEFAULT 'USD',
+  store VARCHAR(100),
+  category VARCHAR(100),
+  url VARCHAR(500),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[DB] Migration 001_create_users.sql statement skipped: 🔨 Not supported 🔨 : The query you ran generated an AST which parts have not been read by the query planner. This means that those parts could be ignored:
+
+    ⇨ .columns[2].dataType.config ([10,2])
+
+👉 pg-mem is work-in-progress, and it would seem that you've hit one of its limits.
+
+*️⃣ Failed SQL statement: CREATE TABLE IF NOT EXISTS price_history (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  product_id UUID REFERENCES products(id) ON DELETE CASCADE,
+  price DECIMAL(10, 2) NOT NULL,
+  recorded_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[DB] Migration 001_create_users.sql statement skipped: 🔨 Not supported 🔨 : The query you ran generated an AST which parts have not been read by the query planner. This means that those parts could be ignored:
+
+    ⇨ .columns[3].dataType.config ([10,2])
+
+👉 pg-mem is work-in-progress, and it would seem that you've hit one of its limits.
+
+*️⃣ Failed SQL statement: CREATE TABLE IF NOT EXISTS price_alerts (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  product_id UUID REFERENCES products(id) ON DELETE CASCADE,
+  target_price DECIMAL(10, 2) NOT NULL,
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[DB] Migration 002_add_product_fields.sql statement skipped: 🔨 Not supported 🔨 : The query you ran generated an AST which parts have not been read by the query planner. This means that those parts could be ignored:
+
+    ⇨ .changes[1].column.dataType.config ([3,2])
+
+👉 pg-mem is work-in-progress, and it would seem that you've hit one of its limits.
+
+*️⃣ Failed SQL statement: ALTER TABLE products
+  ADD COLUMN IF NOT EXISTS description TEXT,
+  ADD COLUMN IF NOT EXISTS rating DECIMAL(3, 2) DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS stock INT DEFAULT 0;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert Elden Ring: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('Elden Ring', null, 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1245620/header.jpg', '39.99', '59.99', 'Steam', 'Games', 'https://store.steampowered.com/app/1245620/Elden_Ring/', '4.9', '999')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert Hades: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('Hades', null, 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1145360/header.jpg', '12.49', '24.99', 'Steam', 'Games', 'https://store.steampowered.com/app/1145360/Hades/', '4.8', '999')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert Red Dead Redemption 2: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('Red Dead Redemption 2', null, 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1174180/header.jpg', '29.99', '59.99', 'Steam', 'Games', 'https://store.steampowered.com/app/1174180/Red_Dead_Redemption_2/', '4.7', '999')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert Stardew Valley: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('Stardew Valley', null, 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/413150/header.jpg', '9.99', '14.99', 'Steam', 'Games', 'https://store.steampowered.com/app/413150/Stardew_Valley/', '4.8', '999')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert Baldur's Gate 3: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('Baldur''s Gate 3', null, 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1086940/header.jpg', '49.99', '59.99', 'Steam', 'Games', 'https://store.steampowered.com/app/1086940/Baldurs_Gate_3/', '4.9', '999')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert Hollow Knight: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('Hollow Knight', null, 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/367520/header.jpg', '7.49', '14.99', 'GOG', 'Games', 'https://www.gog.com/en/game/hollow_knight', '4.7', '999')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert The Witcher 3: Wild Hunt: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('The Witcher 3: Wild Hunt', null, 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/292030/header.jpg', '9.99', '39.99', 'Steam', 'Games', 'https://store.steampowered.com/app/292030/The_Witcher_3_Wild_Hunt/', '4.8', '999')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert Portal 2: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('Portal 2', null, 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/620/header.jpg', '2.99', '9.99', 'Steam', 'Games', 'https://store.steampowered.com/app/620/Portal_2/', '4.9', '999')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert Doom Eternal: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('Doom Eternal', null, 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/782330/header.jpg', '19.99', '39.99', 'Steam', 'Games', 'https://store.steampowered.com/app/782330/Doom_Eternal/', '4.6', '999')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert Celeste: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('Celeste', null, 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/504230/header.jpg', '4.99', '19.99', 'Steam', 'Games', 'https://store.steampowered.com/app/504230/Celeste/', '4.9', '999')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert Disco Elysium: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('Disco Elysium', null, 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/632470/header.jpg', '13.99', '39.99', 'Steam', 'Games', 'https://store.steampowered.com/app/632470/Disco_Elysium__The_Final_Cut/', '4.8', '999')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert Death Stranding: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('Death Stranding', null, 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1190460/header.jpg', '24.99', '39.99', 'Steam', 'Games', 'https://store.steampowered.com/app/1190460/Death_Stranding/', '4.4', '999')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert It Takes Two: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('It Takes Two', null, 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1426210/header.jpg', '19.99', '39.99', 'Steam', 'Games', 'https://store.steampowered.com/app/1426210/It_Takes_Two/', '4.8', '999')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert NVIDIA GeForce RTX 4090: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('NVIDIA GeForce RTX 4090', '32GB GDDR6X, 16384 CUDA Cores, 2520MHz Boost clock. The ultimate consumer GPU for 4K gaming and creative workloads with DLSS 3 and ray tracing.', 'https://placehold.co/400x300/1a1a2e/e94560?text=RTX+4090', '1799.99', '1999.99', 'Amazon', 'GPU', 'https://www.amazon.com/dp/B0CHXLKRPW', '4.8', '12')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert NVIDIA GeForce RTX 4080 Super: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('NVIDIA GeForce RTX 4080 Super', '16GB GDDR6X, 10240 CUDA Cores, 2550MHz Boost. Premium 4K gaming GPU with exceptional ray tracing performance and DLSS 3.5 support.', 'https://placehold.co/400x300/1a1a2e/e94560?text=RTX+4080+Super', '999.99', '1099.99', 'Best Buy', 'GPU', 'https://www.bestbuy.com/site/nvidia-geforce-rtx-4080-super', '4.7', '25')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert AMD Radeon RX 7900 XTX: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('AMD Radeon RX 7900 XTX', '24GB GDDR6, 6144 Stream Processors, 2500MHz Boost. AMD flagship GPU delivering outstanding 4K rasterization performance and massive VRAM.', 'https://placehold.co/400x300/1a1a2e/e94560?text=RX+7900+XTX', '849.99', '999.99', 'Newegg', 'GPU', 'https://www.newegg.com/amd-radeon-rx-7900-xtx', '4.6', '18')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert NVIDIA GeForce RTX 4070 Ti Super: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('NVIDIA GeForce RTX 4070 Ti Super', '16GB GDDR6X, 8448 CUDA Cores, 2610MHz Boost. High-end 1440p/4K gaming GPU with excellent ray tracing and DLSS 3 frame generation.', 'https://placehold.co/400x300/1a1a2e/e94560?text=RTX+4070+Ti+Super', '749.99', '799.99', 'Amazon', 'GPU', 'https://www.amazon.com/dp/B0CSK7LJ8P', '4.7', '30')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert AMD Radeon RX 7800 XT: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('AMD Radeon RX 7800 XT', '16GB GDDR6, 3840 Stream Processors, 2430MHz Boost. Excellent 1440p gaming graphics card with great price-to-performance ratio.', 'https://placehold.co/400x300/1a1a2e/e94560?text=RX+7800+XT', '479.99', '549.99', 'Micro Center', 'GPU', 'https://www.microcenter.com/product/amd-radeon-rx-7800-xt', '4.5', '22')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert NVIDIA GeForce RTX 4060: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('NVIDIA GeForce RTX 4060', '8GB GDDR6, 3072 CUDA Cores, 2460MHz Boost. The go-to entry-level ray tracing GPU for smooth 1080p gaming with DLSS 3 support.', 'https://placehold.co/400x300/1a1a2e/e94560?text=RTX+4060', '279.99', '329.99', 'Best Buy', 'GPU', 'https://www.bestbuy.com/site/nvidia-geforce-rtx-4060', '4.4', '45')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert Logitech G Pro X TKL: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('Logitech G Pro X TKL', 'Professional-grade tenkeyless mechanical keyboard with GX Blue/Brown/Red switches, LIGHTSYNC RGB, and ultra-portable design for competitive gaming.', 'https://placehold.co/400x300/1a1a2e/e94560?text=Logitech+G+Pro+X', '179.99', '229.99', 'Amazon', 'Keyboard', 'https://www.amazon.com/dp/B09H6ZQKJL', '4.6', '35')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert Razer BlackWidow V4 Pro: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('Razer BlackWidow V4 Pro', 'Full-size mechanical keyboard with Razer Green switches, command dial, media keys, plush leatherette wrist rest, and Chroma RGB lighting.', 'https://placehold.co/400x300/1a1a2e/e94560?text=BlackWidow+V4+Pro', '149.99', '189.99', 'Razer', 'Keyboard', 'https://www.razer.com/gaming-keyboards/blackwidow-v4-pro', '4.5', '28')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert SteelSeries Apex Pro TKL: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('SteelSeries Apex Pro TKL', 'Worlds fastest mechanical keyboard with OmniPoint adjustable switches, OLED smart display, and aircraft-grade aluminum frame.', 'https://placehold.co/400x300/1a1a2e/e94560?text=Apex+Pro+TKL', '189.99', '249.99', 'SteelSeries', 'Keyboard', 'https://steelseries.com/gaming-keyboards/apex-pro-tkl', '4.7', '15')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert Corsair K70 RGB Pro: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('Corsair K70 RGB Pro', 'Premium mechanical gaming keyboard with CHERRY MX Speed switches, PBT double-shot keycaps, aluminum frame, and per-key RGB backlighting.', 'https://placehold.co/400x300/1a1a2e/e94560?text=Corsair+K70+RGB', '129.99', '169.99', 'Best Buy', 'Keyboard', 'https://www.bestbuy.com/site/corsair-k70-rgb-pro', '4.6', '40')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert HyperX Alloy Origins 65: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('HyperX Alloy Origins 65', 'Compact 65% mechanical keyboard with HyperX Aqua switches, PBT keycaps, detachable USB-C cable, and vibrant RGB lighting effects.', 'https://placehold.co/400x300/1a1a2e/e94560?text=HyperX+Alloy+65', '89.99', '109.99', 'Amazon', 'Keyboard', 'https://www.amazon.com/dp/B09HPR4LZV', '4.4', '55')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert ASUS ROG Azoth: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('ASUS ROG Azoth', 'Wireless 75% mechanical keyboard with ROG NX switches, OLED display, tri-mode connectivity, gasket mount design, and pre-lubed switches.', 'https://placehold.co/400x300/1a1a2e/e94560?text=ROG+Azoth', '199.99', '249.99', 'Newegg', 'Keyboard', 'https://www.newegg.com/asus-rog-azoth', '4.7', '10')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert Logitech G Pro X Superlight 2: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('Logitech G Pro X Superlight 2', 'Ultra-lightweight 60g wireless gaming mouse with HERO 2 sensor, LIGHTFORCE hybrid switches, and 95-hour battery life. The choice of esports pros.', 'https://placehold.co/400x300/1a1a2e/e94560?text=Superlight+2', '129.99', '159.99', 'Amazon', 'Mouse', 'https://www.amazon.com/dp/B0C8F8ZKL4', '4.8', '50')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert Razer DeathAdder V3 Pro: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('Razer DeathAdder V3 Pro', 'Ergonomic 63g wireless esports mouse with Focus Pro 30K sensor, optical switches, and 90-hour battery. Iconic shape refined for competitive play.', 'https://placehold.co/400x300/1a1a2e/e94560?text=DeathAdder+V3+Pro', '119.99', '149.99', 'Razer', 'Mouse', 'https://www.razer.com/gaming-mice/deathadder-v3-pro', '4.7', '32')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert SteelSeries Aerox 5 Wireless: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('SteelSeries Aerox 5 Wireless', 'Ultra-light 66g honeycomb wireless mouse with TrueMove Air sensor, 9 programmable buttons, AquaBarrier water resistance, and 80-hour battery.', 'https://placehold.co/400x300/1a1a2e/e94560?text=Aerox+5+Wireless', '99.99', '139.99', 'Best Buy', 'Mouse', 'https://www.bestbuy.com/site/steelseries-aerox-5-wireless', '4.5', '20')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert Corsair Dark Core RGB Pro SE: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('Corsair Dark Core RGB Pro SE', 'Wireless FPS/MOBA gaming mouse with 18K DPI optical sensor, Qi wireless charging, customizable side grips, and nine programmable buttons.', 'https://placehold.co/400x300/1a1a2e/e94560?text=Dark+Core+RGB+Pro', '79.99', '99.99', 'Amazon', 'Mouse', 'https://www.amazon.com/dp/B07TYWQTYT', '4.3', '38')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert HyperX Pulsefire Haste 2: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('HyperX Pulsefire Haste 2', 'Ultra-light 53g honeycomb wireless mouse with HyperX 26K sensor, rated for 100M clicks, and 100-hour battery on a single charge.', 'https://placehold.co/400x300/1a1a2e/e94560?text=Pulsefire+Haste+2', '49.99', '69.99', 'HyperX', 'Mouse', 'https://hyperx.com/products/pulsefire-haste-2-wireless', '4.4', '60')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert ASUS ROG Keris Wireless AimPoint: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('ASUS ROG Keris Wireless AimPoint', '75g lightweight ergonomic gaming mouse with ROG AimPoint 36K sensor, tri-mode connectivity, ROG Micro Switches, and swappable top shell.', 'https://placehold.co/400x300/1a1a2e/e94560?text=ROG+Keris', '69.99', '89.99', 'Newegg', 'Mouse', 'https://www.newegg.com/asus-rog-keris-wireless', '4.5', '25')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert Samsung Odyssey G7 27": ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('Samsung Odyssey G7 27"', '27-inch QHD 240Hz 1ms Curved Gaming Monitor with G-Sync Compatible, HDR600, and immersive 1000R curve for competitive gaming.', 'https://placehold.co/400x300/1a1a2e/e94560?text=Odyssey+G7+27', '499.99', '699.99', 'Amazon', 'Monitor', 'https://www.amazon.com/dp/B08FF3LXSY', '4.6', '15')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert LG 27GP850-B Ultragear 27": ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('LG 27GP850-B Ultragear 27"', '27-inch QHD Nano IPS 180Hz 1ms gaming monitor with DCI-P3 98%, G-Sync Compatible, and VESA DisplayHDR 400 certification.', 'https://placehold.co/400x300/1a1a2e/e94560?text=LG+27GP850-B', '379.99', '449.99', 'Best Buy', 'Monitor', 'https://www.bestbuy.com/site/lg-ultragear-27-gp850-b', '4.5', '20')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert Dell S2722DGM 27": ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('Dell S2722DGM 27"', '27-inch QHD 165Hz 2ms Curved VA Gaming Monitor with AMD FreeSync Premium, VESA compatible, and built-in gaming crosshair overlay.', 'https://placehold.co/400x300/1a1a2e/e94560?text=Dell+S2722DGM', '279.99', '349.99', 'Dell', 'Monitor', 'https://www.dell.com/en-us/shop/dell-s2722dgm-gaming-monitor', '4.4', '30')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert ASUS ROG Swift PG27AQDM 27": ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('ASUS ROG Swift PG27AQDM 27"', '27-inch QHD 240Hz OLED gaming monitor with 0.03ms response time, G-Sync Compatible, and true HDR with infinite contrast ratio.', 'https://placehold.co/400x300/1a1a2e/e94560?text=ROG+Swift+OLED', '799.99', '999.99', 'Newegg', 'Monitor', 'https://www.newegg.com/asus-rog-swift-pg27aqdm', '4.8', '8')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert Gigabyte M27Q 27": ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('Gigabyte M27Q 27"', '27-inch QHD 170Hz 1ms SS IPS gaming monitor with 92% DCI-P3, KVM built-in, FreeSync Premium, and HDR ready for vibrant gameplay.', 'https://placehold.co/400x300/1a1a2e/e94560?text=Gigabyte+M27Q', '299.99', '369.99', 'Amazon', 'Monitor', 'https://www.amazon.com/dp/B08S6J6N6X', '4.5', '22')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert MSI Optix MAG274QRF-QD 27": ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('MSI Optix MAG274QRF-QD 27"', '27-inch QHD 165Hz 1ms Rapid IPS gaming monitor with Quantum Dot color technology, 97% DCI-P3, and G-Sync Compatible.', 'https://placehold.co/400x300/1a1a2e/e94560?text=MSI+MAG274QRF', '329.99', '399.99', 'Micro Center', 'Monitor', 'https://www.microcenter.com/product/msi-optix-mag274qrf-qd', '4.6', '17')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert ASUS ROG Zephyrus G14: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('ASUS ROG Zephyrus G14', '14-inch QHD 165Hz gaming laptop with AMD Ryzen 9 7940HS, NVIDIA RTX 4070, 16GB DDR5, 1TB SSD, and ROG Nebula Display.', 'https://placehold.co/400x300/1a1a2e/e94560?text=Zephyrus+G14', '1299.99', '1599.99', 'Best Buy', 'Laptop', 'https://www.bestbuy.com/site/asus-rog-zephyrus-g14', '4.7', '10')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert Razer Blade 15: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('Razer Blade 15', '15.6-inch QHD 240Hz gaming laptop with Intel i9-13900H, NVIDIA RTX 4070, 16GB DDR5, 1TB SSD, and CNC aluminum chassis.', 'https://placehold.co/400x300/1a1a2e/e94560?text=Razer+Blade+15', '2199.99', '2599.99', 'Razer', 'Laptop', 'https://www.razer.com/gaming-laptops/razer-blade-15', '4.5', '6')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert Lenovo Legion Pro 5: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('Lenovo Legion Pro 5', '16-inch QHD 240Hz gaming laptop with AMD Ryzen 7 7745HX, NVIDIA RTX 4070, 32GB DDR5, 1TB SSD, and ColdFront 5.0 thermal system.', 'https://placehold.co/400x300/1a1a2e/e94560?text=Legion+Pro+5', '1499.99', '1799.99', 'Lenovo', 'Laptop', 'https://www.lenovo.com/us/en/p/legion-pro-5-gen-8', '4.6', '14')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert ASUS TUF Gaming A15: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('ASUS TUF Gaming A15', '15.6-inch FHD 144Hz gaming laptop with AMD Ryzen 7 7735HS, NVIDIA RTX 4060, 16GB DDR5, 512GB SSD, and MIL-STD-810H durability.', 'https://placehold.co/400x300/1a1a2e/e94560?text=TUF+Gaming+A15', '999.99', '1199.99', 'Amazon', 'Laptop', 'https://www.amazon.com/dp/B0BTZC44YR', '4.4', '25')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert Dell G16 7630: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('Dell G16 7630', '16-inch QHD 165Hz gaming laptop with Intel i7-13650HX, NVIDIA RTX 4070, 16GB DDR5, 1TB SSD, and Alienware-inspired thermal design.', 'https://placehold.co/400x300/1a1a2e/e94560?text=Dell+G16', '1149.99', '1399.99', 'Dell', 'Laptop', 'https://www.dell.com/en-us/shop/dell-g16-7630-gaming-laptop', '4.3', '18')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert MSI Stealth 16 Studio: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('MSI Stealth 16 Studio', '16-inch 4K 120Hz OLED gaming laptop with Intel i9-13900H, NVIDIA RTX 4070, 32GB DDR5, 2TB SSD, and ultra-slim magnesium alloy design.', 'https://placehold.co/400x300/1a1a2e/e94560?text=Stealth+16', '1799.99', '2099.99', 'Newegg', 'Laptop', 'https://www.newegg.com/msi-stealth-16-studio', '4.5', '8')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert Sony PlayStation 5 Slim: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('Sony PlayStation 5 Slim', 'PS5 Slim with ultra-fast SSD, DualSense wireless controller, ray tracing support, and access to an incredible library of exclusive games.', 'https://placehold.co/400x300/1a1a2e/e94560?text=PS5+Slim', '449.99', '499.99', 'Amazon', 'Console', 'https://www.amazon.com/dp/B0CL5KNB9M', '4.8', '40')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert Xbox Series X: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('Xbox Series X', 'Fastest most powerful Xbox ever with 12 TFLOPS, 1TB SSD, Quick Resume, backwards compatibility, and Xbox Game Pass ecosystem.', 'https://placehold.co/400x300/1a1a2e/e94560?text=Xbox+Series+X', '479.99', '499.99', 'Best Buy', 'Console', 'https://www.bestbuy.com/site/microsoft-xbox-series-x', '4.7', '35')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert Nintendo Switch OLED: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('Nintendo Switch OLED', 'Nintendo Switch OLED Model with vibrant 7-inch OLED screen, enhanced audio, wide adjustable stand, 64GB internal storage, and dock with LAN port.', 'https://placehold.co/400x300/1a1a2e/e94560?text=Switch+OLED', '299.99', '349.99', 'GameStop', 'Console', 'https://www.gamestop.com/nintendo-switch-oled', '4.6', '50')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert Valve Steam Deck OLED: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('Valve Steam Deck OLED', 'Steam Deck OLED with 7.4-inch HDR OLED display, AMD APU, 512GB NVMe SSD, updated cooling, and 50% longer battery life for gaming on the go.', 'https://placehold.co/400x300/1a1a2e/e94560?text=Steam+Deck+OLED', '549.99', '649.99', 'Steam', 'Console', 'https://store.steampowered.com/steamdeck', '4.8', '20')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert ASUS ROG Ally X: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('ASUS ROG Ally X', 'Handheld gaming PC with AMD Z1 Extreme, 7-inch FHD 120Hz display, 24GB LPDDR5, 1TB SSD, and dual USB-C with Thunderbolt 4 support.', 'https://placehold.co/400x300/1a1a2e/e94560?text=ROG+Ally+X', '699.99', '799.99', 'Best Buy', 'Console', 'https://www.bestbuy.com/site/asus-rog-ally-x', '4.5', '15')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
+[SEED] Failed to insert Nintendo Switch Lite: ERROR: insert into "products" (name, description, image_url, current_price, original_price, store, category, url, rating, stock, id, currency, created_at, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning "id" - duplicate key value violates unique constraint "products_pkey"
+DETAIL: Key (id)=(26375d11-ea21-4e68-979a-4351ce393b77) already exists.
+
+🐜 This seems to be an execution error, which means that your request syntax seems okay,
+    but the resulting statement cannot be executed → Probably not a pg-mem error.
+
+*️⃣ Failed SQL statement: INSERT INTO products (name, description, image_url, current_price, original_price, store, category, url, rating, stock)
+         VALUES ('Nintendo Switch Lite', 'Compact lightweight Nintendo Switch dedicated to handheld play with built-in controls, 5.5-inch screen, and up to 7 hours of battery life.', 'https://placehold.co/400x300/1a1a2e/e94560?text=Switch+Lite', '179.99', '199.99', 'Walmart', 'Console', 'https://www.walmart.com/ip/nintendo-switch-lite', '4.4', '65')
+         ON CONFLICT (url) DO NOTHING
+         RETURNING id;
+
+👉 You can file an issue at https://github.com/oguimbal/pg-mem along with a way to reproduce this error (if you can), and  the stacktrace:
+
+
