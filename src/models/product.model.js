@@ -77,6 +77,11 @@ const create = async ({ name, imageUrl, currentPrice, originalPrice, currency, s
   const { rows } = await query(
     `INSERT INTO products (id, name, image_url, current_price, original_price, currency, store, category, url, description, rating, stock)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+     ON CONFLICT (url) DO UPDATE SET
+       current_price = EXCLUDED.current_price,
+       original_price = EXCLUDED.original_price,
+       image_url = EXCLUDED.image_url,
+       updated_at = NOW()
      RETURNING *`,
     [id, name, imageUrl, currentPrice, originalPrice, currency || 'USD', store, category, url, description || null, rating || null, stock ?? null]
   );

@@ -42,7 +42,95 @@ const triggerMLScrape = async (req, res) => {
   }
 };
 
-module.exports = { triggerMLScrape, triggerMigrations, triggerSeed };
+async function checkDuplicates(req, res) {
+  const secret = req.headers['x-admin-secret'];
+  if (secret !== process.env.ADMIN_SCRAPE_SECRET) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  try {
+    const constraints = await query(
+      `SELECT conname, contype FROM pg_constraint WHERE conrelid = 'products'::regclass`
+    );
+
+    const indexes = await query(
+      `SELECT indexname, indexdef FROM pg_indexes WHERE tablename = 'products'`
+    );
+
+    const dupesByUrl = await query(
+      `SELECT url, COUNT(*) as count
+       FROM products
+       WHERE store = 'Mercado Libre'
+       GROUP BY url
+       HAVING COUNT(*) > 1
+       LIMIT 20`
+    );
+
+    const dupesByName = await query(
+      `SELECT name, COUNT(*) as count, array_agg(url) as urls
+       FROM products
+       WHERE store = 'Mercado Libre'
+       GROUP BY name
+       HAVING COUNT(*) > 1
+       LIMIT 20`
+    );
+
+    const totalML = await query(
+      `SELECT COUNT(*)::int as cnt FROM products WHERE store = 'Mercado Libre'`
+    );
+
+    res.json({
+      success: true,
+      totalMercadoLibreProducts: totalML.rows[0].cnt,
+      constraints: constraints.rows,
+      indexes: indexes.rows,
+      dupesByUrl: dupesByUrl.rows,
+      dupesByName: dupesByName.rows,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+}
+
+async function cleanDuplicates(req, res) {
+  const secret = req.headers['x-admin-secret'];
+  if (secret !== process.env.ADMIN_SCRAPE_SECRET) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  try {
+    const before = await query(
+      `SELECT COUNT(*)::int as cnt FROM products WHERE store = 'Mercado Libre'`
+    );
+
+    const result = await query(
+      `DELETE FROM products a
+       WHERE a.store = 'Mercado Libre'
+       AND a.id NOT IN (
+         SELECT DISTINCT ON (name) id
+         FROM products
+         WHERE store = 'Mercado Libre'
+         ORDER BY name, updated_at DESC
+       )`
+    );
+
+    const after = await query(
+      `SELECT COUNT(*)::int as cnt FROM products WHERE store = 'Mercado Libre'`
+    );
+
+    res.json({
+      success: true,
+      message: 'Duplicados limpiados',
+      beforeCleanup: before.rows[0].cnt,
+      remainingProducts: after.rows[0].cnt,
+      deleted: before.rows[0].cnt - after.rows[0].cnt,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+}
+
+module.exports = { triggerMLScrape, triggerMigrations, triggerSeed, checkDuplicates, cleanDuplicates };
 
 async function triggerMigrations(req, res) {
   const secret = req.headers['x-admin-secret'];
