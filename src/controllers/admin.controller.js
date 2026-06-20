@@ -130,7 +130,30 @@ async function cleanDuplicates(req, res) {
   }
 }
 
-module.exports = { triggerMLScrape, triggerMigrations, triggerSeed, checkDuplicates, cleanDuplicates };
+async function cleanNonGaming(req, res) {
+  const secret = req.headers['x-admin-secret'];
+  if (secret !== process.env.ADMIN_SCRAPE_SECRET) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  try {
+    const result = await query(
+      `DELETE FROM products
+       WHERE store = 'Mercado Libre'
+       AND category IN ('phone', 'appliance')`
+    );
+
+    res.json({
+      success: true,
+      message: 'Productos no-gaming eliminados',
+      deleted: result.rowCount,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+}
+
+module.exports = { triggerMLScrape, triggerMigrations, triggerSeed, checkDuplicates, cleanDuplicates, cleanNonGaming };
 
 async function triggerMigrations(req, res) {
   const secret = req.headers['x-admin-secret'];

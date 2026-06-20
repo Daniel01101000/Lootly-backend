@@ -20,66 +20,61 @@ async function getBrowser() {
   }
 }
 
-const CATEGORY_KEYWORDS = [
-  { keywords: ['tarjeta de video', 'tarjeta grafica', 'rtx', 'gtx', 'radeon', 'gpu', 'geforce'], category: 'gpu' },
-  { keywords: ['procesador', 'ryzen', 'intel core', 'cpu', 'core i5', 'core i7', 'core i9'], category: 'cpu' },
-  { keywords: ['monitor', 'pantalla', '144hz', '165hz', '240hz', 'gaming monitor'], category: 'monitor' },
-  { keywords: ['teclado', 'keyboard', 'mecanico', 'gaming keyboard'], category: 'keyboard' },
-  { keywords: ['mouse', 'raton', 'gaming mouse'], category: 'mouse' },
-  { keywords: ['laptop', 'notebook', 'gaming laptop', 'laptop gamer'], category: 'laptop' },
-  { keywords: ['audifonos', 'headset', 'auriculares', 'casco gamer'], category: 'headset' },
-  { keywords: ['silla gamer', 'escritorio gamer', 'mesa gamer', 'gaming chair'], category: 'component' },
-  { keywords: ['ssd', 'nvme', 'disco duro', 'almacenamiento'], category: 'component' },
-  { keywords: ['memoria ram', 'ddr4', 'ddr5', 'ram gamer'], category: 'component' },
-  { keywords: ['fuente de poder', 'psu', 'fuente gamer'], category: 'component' },
-  { keywords: ['motherboard', 'tarjeta madre', 'placa base'], category: 'component' },
-  { keywords: ['consola', 'playstation', 'xbox', 'nintendo switch'], category: 'console' },
-  { keywords: ['videojuego', 'juego ps5', 'juego xbox'], category: 'games' },
-  { keywords: ['celular', 'smartphone', 'galaxy', 'iphone', 'xiaomi', 'redmi', 'motorola moto'], category: 'phone' },
-  { keywords: ['refrigerador', 'frigobar', 'lavadora', 'microondas', 'licuadora', 'aspiradora', 'estufa', 'horno'], category: 'appliance' },
-];
-
-function inferCategory(title) {
-  const lower = title.toLowerCase();
-  for (const entry of CATEGORY_KEYWORDS) {
-    for (const kw of entry.keywords) {
-      if (lower.includes(kw)) return entry.category;
-    }
+function normalizeUrl(rawUrl) {
+  try {
+    const url = new URL(rawUrl);
+    return `${url.origin}${url.pathname}`;
+  } catch {
+    return rawUrl;
   }
-  return null;
 }
 
-async function scrapePage(browser, pageNum) {
+const SEARCH_QUERIES = [
+  { q: 'tarjeta de video gaming rtx', category: 'gpu' },
+  { q: 'procesador gaming amd ryzen intel', category: 'cpu' },
+  { q: 'monitor gamer 144hz', category: 'monitor' },
+  { q: 'teclado mecanico gamer', category: 'keyboard' },
+  { q: 'mouse gamer inalambrico', category: 'mouse' },
+  { q: 'laptop gamer rtx', category: 'laptop' },
+  { q: 'audifonos gamer', category: 'headset' },
+  { q: 'silla gamer', category: 'component' },
+  { q: 'ssd nvme gaming', category: 'component' },
+  { q: 'memoria ram gaming', category: 'component' },
+];
+
+function buildSearchUrl(query) {
+  const slug = query.trim().toLowerCase().replace(/\s+/g, '-');
+  return `https://listado.mercadolibre.com.mx/${encodeURIComponent(slug)}`;
+}
+
+async function scrapeQuery(browser, query, category) {
   const page = await browser.newPage();
   await page.setUserAgent(
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
   );
   await page.setViewport({ width: 1366, height: 900 });
 
-  const url = pageNum === 1
-    ? 'https://www.mercadolibre.com.mx/ofertas'
-    : `https://www.mercadolibre.com.mx/ofertas?page=${pageNum}`;
-
+  const url = buildSearchUrl(query);
   console.log(`[Scraper] Navegando a: ${url}`);
 
   const results = [];
 
   try {
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
-    await page.waitForSelector('.poly-card', { timeout: 15000 }).catch(() => null);
+    await page.waitForSelector('.poly-card, .ui-search-layout__item', { timeout: 15000 }).catch(() => null);
 
     const items = await page.evaluate(() => {
-      const cards = document.querySelectorAll('.poly-card');
+      const cards = document.querySelectorAll('.poly-card, .ui-search-layout__item');
       const data = [];
 
       cards.forEach((card) => {
         try {
-          const titleEl = card.querySelector('.poly-component__title');
+          const titleEl = card.querySelector('.poly-component__title, .ui-search-item__title');
           const title = titleEl?.textContent?.trim();
-          const linkEl = card.querySelector('a.poly-component__title');
-          const url = linkEl?.href || card.querySelector('a')?.href;
+          const linkEl = card.querySelector('a.poly-component__title, a');
+          const url = linkEl?.href;
 
-          const currentPriceEl = card.querySelector('.poly-price__current .andes-money-amount__fraction');
+          const currentPriceEl = card.querySelector('.poly-price__current .andes-money-amount__fraction, .price-tag-fraction');
           const currentPrice = currentPriceEl?.textContent?.replace(/\D/g, '');
 
           const originalPriceContainer = card.querySelector('.andes-money-amount--previous');
@@ -89,38 +84,31 @@ async function scrapePage(browser, pageNum) {
           const discountEl = card.querySelector('.andes-money-amount__discount');
           const discountText = discountEl?.textContent?.replace(/\D/g, '');
 
-          const imgEl = card.querySelector('.poly-component__picture');
+          const imgEl = card.querySelector('.poly-component__picture, img');
           const imageUrl = imgEl?.getAttribute('src') || imgEl?.getAttribute('data-src');
 
           if (title && currentPrice && url) {
             data.push({
-              title,
-              url,
+              title, url,
               currentPrice: Number(currentPrice),
               originalPrice: originalPrice ? Number(originalPrice) : null,
               discount: discountText ? Number(discountText) : null,
               imageUrl,
             });
           }
-        } catch (e) {
-          // skip card si falla el parseo individual
-        }
+        } catch (e) {}
       });
 
       return data;
     });
 
-    console.log(`[Scraper] Página ${pageNum} → ${items.length} items encontrados`);
+    console.log(`[Scraper] "${query}" → ${items.length} items encontrados`);
 
     for (const item of items) {
       const discount = item.discount || (item.originalPrice
         ? Math.round((1 - item.currentPrice / item.originalPrice) * 100)
         : 0);
-
       if (!item.originalPrice || discount < 10) continue;
-
-      const category = inferCategory(item.title);
-      if (!category) continue;
 
       results.push({
         name: item.title,
@@ -128,38 +116,19 @@ async function scrapePage(browser, pageNum) {
         current_price: item.currentPrice,
         original_price: item.originalPrice,
         discount,
-        url: item.url,
+        url: normalizeUrl(item.url),
         store: 'Mercado Libre',
         category,
         currency: 'MXN',
       });
     }
   } catch (err) {
-    console.warn(`[Scraper] Error en página ${pageNum}: ${err.message}`);
+    console.warn(`[Scraper] Error en "${query}": ${err.message}`);
   } finally {
     await page.close();
   }
 
   return results;
-}
-
-function normalizeUrl(rawUrl) {
-  try {
-    const u = new URL(rawUrl);
-    u.search = '';
-    u.hash = '';
-    return u.toString();
-  } catch {
-    return rawUrl;
-  }
-}
-
-function normalizeTitle(title) {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
 }
 
 async function scrapeAllDeals() {
@@ -168,25 +137,19 @@ async function scrapeAllDeals() {
 
   const allDeals = [];
 
-  for (let pageNum = 1; pageNum <= 5; pageNum++) {
-    const deals = await scrapePage(browser, pageNum);
+  for (const { q, category } of SEARCH_QUERIES) {
+    const deals = await scrapeQuery(browser, q, category);
     allDeals.push(...deals);
-    console.log(`[Scraper] Página ${pageNum} → ${deals.length} ofertas con descuento`);
+    console.log(`[Scraper] "${q}" → ${deals.length} ofertas con descuento`);
     await new Promise((r) => setTimeout(r, 2500));
   }
 
   await browser.close();
 
-  const seenUrls = new Set();
-  const seenTitles = new Set();
+  const seen = new Set();
   const unique = allDeals.filter((d) => {
-    const cleanUrl = normalizeUrl(d.url);
-    if (seenUrls.has(cleanUrl)) return false;
-    const normalizedTitle = normalizeTitle(d.name);
-    if (seenTitles.has(normalizedTitle)) return false;
-    seenUrls.add(cleanUrl);
-    seenTitles.add(normalizedTitle);
-    d.url = cleanUrl;
+    if (seen.has(d.url)) return false;
+    seen.add(d.url);
     return true;
   });
 
