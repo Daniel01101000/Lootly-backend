@@ -143,6 +143,25 @@ async function scrapePage(browser, pageNum) {
   return results;
 }
 
+function normalizeUrl(rawUrl) {
+  try {
+    const u = new URL(rawUrl);
+    u.search = '';
+    u.hash = '';
+    return u.toString();
+  } catch {
+    return rawUrl;
+  }
+}
+
+function normalizeTitle(title) {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 async function scrapeAllDeals() {
   console.log('[Scraper] Iniciando navegador...');
   const browser = await getBrowser();
@@ -158,10 +177,16 @@ async function scrapeAllDeals() {
 
   await browser.close();
 
-  const seen = new Set();
+  const seenUrls = new Set();
+  const seenTitles = new Set();
   const unique = allDeals.filter((d) => {
-    if (seen.has(d.url)) return false;
-    seen.add(d.url);
+    const cleanUrl = normalizeUrl(d.url);
+    if (seenUrls.has(cleanUrl)) return false;
+    const normalizedTitle = normalizeTitle(d.name);
+    if (seenTitles.has(normalizedTitle)) return false;
+    seenUrls.add(cleanUrl);
+    seenTitles.add(normalizedTitle);
+    d.url = cleanUrl;
     return true;
   });
 
